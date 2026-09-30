@@ -4,7 +4,6 @@ SPEED = 4
 
 
 class Player:
-
     def __init__(self, x, y):
         self.rect = pygame.Rect(
             x,
@@ -16,6 +15,12 @@ class Player:
         self.vel_y = 0
         self.on_ground = False
         self.color = (60, 160, 220)
+
+        # --------------------------------
+        # Task 3:
+        # Spring recoil animation
+        # --------------------------------
+        self.spring_recoil = 0
 
     def update(
         self,
@@ -29,7 +34,6 @@ class Player:
         # --------------------------------
         # Horizontal movement
         # --------------------------------
-
         if (
             keys[pygame.K_LEFT]
             or keys[pygame.K_a]
@@ -94,6 +98,14 @@ class Player:
         self.on_ground = False
 
         # --------------------------------
+        # Task 3:
+        # Reduce spring recoil animation
+        # --------------------------------
+
+        if self.spring_recoil > 0:
+            self.spring_recoil -= 1
+
+        # --------------------------------
         # Platform collision
         # --------------------------------
 
@@ -101,10 +113,11 @@ class Player:
 
             p = platform.rect
 
+            # --------------------------------
             # Task 1:
-            # Only land when falling and the
-            # player's previous feet position
-            # was near the platform's top.
+            # One-way platform collision
+            # --------------------------------
+
             if (
                 self.rect.colliderect(p)
                 and self.vel_y > 0
@@ -140,12 +153,15 @@ class Player:
                 elif platform.kind == "spring":
 
                     # Strong upward launch.
-                    # This is approximately double
+                    # Approximately double
                     # the normal jump velocity.
                     self.vel_y = -22
 
-                    # Player is immediately airborne.
+                    # Player immediately becomes airborne.
                     self.on_ground = False
+
+                    # Start energetic recoil animation.
+                    self.spring_recoil = 8
 
     def draw(
         self,
@@ -159,13 +175,35 @@ class Player:
         )
 
         # --------------------------------
+        # Task 3:
+        # Spring recoil animation
+        # --------------------------------
+
+        draw_rect = dr.copy()
+
+        if self.spring_recoil > 0:
+
+            # Strongest squash happens
+            # immediately after hitting spring.
+            squash = self.spring_recoil
+
+            draw_rect.x -= squash // 2
+            draw_rect.width += squash
+
+            draw_rect.y += squash // 2
+            draw_rect.height = max(
+                20,
+                draw_rect.height - squash
+            )
+
+        # --------------------------------
         # Draw player body
         # --------------------------------
 
         pygame.draw.rect(
             screen,
             self.color,
-            dr,
+            draw_rect,
             border_radius=6
         )
 
@@ -177,8 +215,8 @@ class Player:
             screen,
             (255, 220, 180),
             (
-                dr.centerx,
-                dr.top + 8
+                draw_rect.centerx,
+                draw_rect.top + 8
             ),
             7
         )

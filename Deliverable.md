@@ -1,13 +1,13 @@
 # SE Lab 04 – Deliverables
 
-## 🎬 Before Implementation
+## 🎬 Before Debugging
 
-The following video shows the project/game before the implementation of the required tasks.
+The following video shows the game before the implementation of the required tasks.
 
 [▶️ Watch Before Debugging Video](./Game_Video_Before_Debugging.mp4)
 
 
-## 🎮 After Implementation
+## 🎮 After Debugging
 
 The following video demonstrates the completed implementation after all the required tasks were completed.
 

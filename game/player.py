@@ -4,19 +4,38 @@ SPEED = 4
 
 
 class Player:
+
     def __init__(self, x, y):
-        self.rect = pygame.Rect(x, y, 32, 32)
+        self.rect = pygame.Rect(
+            x,
+            y,
+            32,
+            32
+        )
+
         self.vel_y = 0
         self.on_ground = False
         self.color = (60, 160, 220)
 
-    def update(self, keys, platforms, width):
+    def update(
+        self,
+        keys,
+        platforms,
+        width
+    ):
+
         dx = 0
 
-        if keys[pygame.K_LEFT] or keys[pygame.K_a]:
+        if (
+            keys[pygame.K_LEFT]
+            or keys[pygame.K_a]
+        ):
             dx = -SPEED
 
-        if keys[pygame.K_RIGHT] or keys[pygame.K_d]:
+        if (
+            keys[pygame.K_RIGHT]
+            or keys[pygame.K_d]
+        ):
             dx = SPEED
 
         if (
@@ -24,11 +43,12 @@ class Player:
             or keys[pygame.K_w]
             or keys[pygame.K_UP]
         ) and self.on_ground:
+
             self.vel_y = -13
             self.on_ground = False
 
-        # Store the player's feet position
-        # before vertical movement.
+        # Task 1:
+        # Remember position before movement.
         previous_bottom = self.rect.bottom
 
         self.vel_y = min(
@@ -44,22 +64,37 @@ class Player:
             )
         )
 
-        self.rect.y += int(self.vel_y)
+        self.rect.y += int(
+            self.vel_y
+        )
 
         self.on_ground = False
 
-        for p in platforms:
+        for platform in platforms:
+
+            p = platform.rect
 
             if (
                 self.rect.colliderect(p)
                 and self.vel_y > 0
                 and previous_bottom <= p.top + 2
             ):
+
                 self.rect.bottom = p.top
                 self.vel_y = 0
                 self.on_ground = True
 
+                # Task 2:
+                # Start crumble timer.
+                if (
+                    platform.kind == "crumble"
+                    and platform.crumble_timer <= 0
+                ):
+
+                    platform.crumble_timer = 1.0
+
     def draw(self, screen, cam_y):
+
         dr = self.rect.move(
             0,
             -int(cam_y)

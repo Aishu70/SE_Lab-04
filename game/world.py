@@ -2,7 +2,7 @@ import pygame
 import random
 import math
 
-
+SPRING_COLOR = (245, 210, 40)
 PLATFORM_COLOR = (100, 80, 50)
 CRUMBLE_COLOR = (155, 105, 55)
 
@@ -52,9 +52,21 @@ def generate_platforms(width, base_y, count=30):
             width - w
         )
 
-        # Approximately 20% crumble.
-        if random.random() < 0.20:
+        # -------------------------
+        # Select platform type
+        # -------------------------
+
+        roll = random.random()
+
+        # 15% crumbling platforms
+        if roll < 0.15:
             kind = "crumble"
+
+        # 12% spring platforms
+        elif roll < 0.27:
+            kind = "spring"
+
+        # Remaining platforms are normal
         else:
             kind = "normal"
 
@@ -82,6 +94,10 @@ def update_platforms(platforms, dt):
 
     for platform in platforms:
 
+        # -------------------------
+        # Crumbling platform timer
+        # -------------------------
+
         if (
             platform.kind == "crumble"
             and platform.crumble_timer > 0
@@ -92,6 +108,7 @@ def update_platforms(platforms, dt):
             if platform.crumble_timer <= 0:
                 broken.append(platform)
 
+    # Remove broken platforms
     for platform in broken:
 
         if platform in platforms:
@@ -104,6 +121,10 @@ def draw_platform(screen, platform, cam_y, frame):
         0,
         -int(cam_y)
     )
+
+    # ==================================================
+    # CRUMBLING PLATFORM
+    # ==================================================
 
     if platform.kind == "crumble":
 
@@ -147,6 +168,86 @@ def draw_platform(screen, platform, cam_y, frame):
                 )
             )
 
+    # ==================================================
+    # SPRING PLATFORM
+    # ==================================================
+
+    elif platform.kind == "spring":
+
+        # Yellow spring platform
+        pygame.draw.rect(
+            screen,
+            SPRING_COLOR,
+            rect,
+            border_radius=4
+        )
+
+        # -------------------------
+        # Draw spring symbol
+        # -------------------------
+
+        mid_x = rect.centerx
+
+        pygame.draw.line(
+            screen,
+            (80, 60, 10),
+            (
+                mid_x - 10,
+                rect.top - 5
+            ),
+            (
+                mid_x - 5,
+                rect.top
+            ),
+            2
+        )
+
+        pygame.draw.line(
+            screen,
+            (80, 60, 10),
+            (
+                mid_x - 5,
+                rect.top
+            ),
+            (
+                mid_x,
+                rect.top - 5
+            ),
+            2
+        )
+
+        pygame.draw.line(
+            screen,
+            (80, 60, 10),
+            (
+                mid_x,
+                rect.top - 5
+            ),
+            (
+                mid_x + 5,
+                rect.top
+            ),
+            2
+        )
+
+        pygame.draw.line(
+            screen,
+            (80, 60, 10),
+            (
+                mid_x + 5,
+                rect.top
+            ),
+            (
+                mid_x + 10,
+                rect.top - 5
+            ),
+            2
+        )
+
+    # ==================================================
+    # NORMAL PLATFORM
+    # ==================================================
+
     else:
 
         pygame.draw.rect(
@@ -172,7 +273,9 @@ def draw_lava(
 
     if ly < height:
 
-        pts = [(0, ly)]
+        pts = [
+            (0, ly)
+        ]
 
         for x in range(
             0,
@@ -207,6 +310,7 @@ def draw_lava(
             pts
         )
 
+        # Lava glow
         s = pygame.Surface(
             (width, 30),
             pygame.SRCALPHA
@@ -220,7 +324,10 @@ def draw_lava(
                     255,
                     100,
                     0,
-                    max(0, 60 - i * 4)
+                    max(
+                        0,
+                        60 - i * 4
+                    )
                 ),
                 (0, i),
                 (width, i),

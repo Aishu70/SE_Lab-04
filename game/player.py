@@ -26,6 +26,10 @@ class Player:
 
         dx = 0
 
+        # --------------------------------
+        # Horizontal movement
+        # --------------------------------
+
         if (
             keys[pygame.K_LEFT]
             or keys[pygame.K_a]
@@ -38,6 +42,10 @@ class Player:
         ):
             dx = SPEED
 
+        # --------------------------------
+        # Normal jump
+        # --------------------------------
+
         if (
             keys[pygame.K_SPACE]
             or keys[pygame.K_w]
@@ -47,14 +55,25 @@ class Player:
             self.vel_y = -13
             self.on_ground = False
 
+        # --------------------------------
         # Task 1:
-        # Remember position before movement.
+        # Remember position before movement
+        # --------------------------------
+
         previous_bottom = self.rect.bottom
+
+        # --------------------------------
+        # Gravity
+        # --------------------------------
 
         self.vel_y = min(
             self.vel_y + 0.55,
             12
         )
+
+        # --------------------------------
+        # Horizontal movement + boundaries
+        # --------------------------------
 
         self.rect.x = max(
             0,
@@ -64,28 +83,48 @@ class Player:
             )
         )
 
+        # --------------------------------
+        # Vertical movement
+        # --------------------------------
+
         self.rect.y += int(
             self.vel_y
         )
 
         self.on_ground = False
 
+        # --------------------------------
+        # Platform collision
+        # --------------------------------
+
         for platform in platforms:
 
             p = platform.rect
 
+            # Task 1:
+            # Only land when falling and the
+            # player's previous feet position
+            # was near the platform's top.
             if (
                 self.rect.colliderect(p)
                 and self.vel_y > 0
                 and previous_bottom <= p.top + 2
             ):
 
+                # Place player exactly on top
+                # of the platform.
                 self.rect.bottom = p.top
+
+                # Stop downward movement.
                 self.vel_y = 0
+
                 self.on_ground = True
 
+                # --------------------------------
                 # Task 2:
-                # Start crumble timer.
+                # Crumbling platform
+                # --------------------------------
+
                 if (
                     platform.kind == "crumble"
                     and platform.crumble_timer <= 0
@@ -93,12 +132,35 @@ class Player:
 
                     platform.crumble_timer = 1.0
 
-    def draw(self, screen, cam_y):
+                # --------------------------------
+                # Task 3:
+                # Spring platform
+                # --------------------------------
+
+                elif platform.kind == "spring":
+
+                    # Strong upward launch.
+                    # This is approximately double
+                    # the normal jump velocity.
+                    self.vel_y = -22
+
+                    # Player is immediately airborne.
+                    self.on_ground = False
+
+    def draw(
+        self,
+        screen,
+        cam_y
+    ):
 
         dr = self.rect.move(
             0,
             -int(cam_y)
         )
+
+        # --------------------------------
+        # Draw player body
+        # --------------------------------
 
         pygame.draw.rect(
             screen,
@@ -106,6 +168,10 @@ class Player:
             dr,
             border_radius=6
         )
+
+        # --------------------------------
+        # Draw player head
+        # --------------------------------
 
         pygame.draw.circle(
             screen,
